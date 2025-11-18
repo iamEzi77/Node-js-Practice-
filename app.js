@@ -241,7 +241,7 @@ app.post("/student/courses", [middleware, adminOrStudent], async (req, res) => {
       try {
         for (const code of courseEnroll) {
           const studentEnrolled = await prisma.course.update({
-            where: { courseCode },
+            where: { courseCode: code },
             data: {
               students: {
                 connect: studentIds.map((id) => ({ id })),
@@ -267,7 +267,7 @@ app.post("/student/courses", [middleware, adminOrStudent], async (req, res) => {
     try {
       for (const code of courseDisEnroll) {
         const studentDisEnrolled = await prisma.course.update({
-          where: { courseCode },
+          where: { courseCode: code },
           data: {
             students: {
               disconnect: studentIds.map((id) => ({ id })),
