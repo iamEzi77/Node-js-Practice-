@@ -1,0 +1,44 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User{
+  id Int @id @default(autoincrement())
+  name String 
+  email String @unique
+  phone String
+  password String?
+  role Role @default(STUDENT)
+  //realtion many to many 
+  coursesEnrolled Course[]  @relation("StudentCourses")
+  //relation 
+  instructorCourses Course[]  @relation("InstructorCourses")
+}   
+
+enum Role{
+  STUDENT
+  ADMIN
+  INSTRUCTOR
+}
+
+model Course{
+  id Int @id @default(autoincrement())
+  courseName String
+  courseCode String @unique
+
+  //many to many relation
+  students  User[]  @relation("StudentCourses")
+
+  //id use for one to one  
+  //or one to many relation
+  instructorId Int
+  instructor User @relation("InstructorCourses",fields: [instructorId] , references: [id])
+  @@index([instructorId])
+ }    
