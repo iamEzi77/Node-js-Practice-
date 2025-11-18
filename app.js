@@ -107,14 +107,14 @@ app.post("/login", async (req, res) => {
       },
     });
 
-    const payload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    };
     if (!user) {
       return res.status(401).json({ error: "user not found" });
     } else {
+      const payload = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      };
       const ciphertext = cryptojs.AES.decrypt(user.password, secratKey);
       const decryptPassword = ciphertext.toString(cryptojs.enc.Utf8);
       if (decryptPassword !== password) {
@@ -230,12 +230,7 @@ app.post("/course/create", [middleware, adminMiddleWare], async (req, res) => {
 /////////////////////////////////
 
 app.post("/student/courses", [middleware, adminOrStudent], async (req, res) => {
-  const {
-    courseCode,
-    studentIds,
-    courseEnroll = [],
-    courseDisEnroll = [],
-  } = req.body;
+  const { studentIds, courseEnroll = [], courseDisEnroll = [] } = req.body;
   const students = await prisma.user.findMany({
     where: { id: { in: studentIds } },
   });
@@ -244,7 +239,7 @@ app.post("/student/courses", [middleware, adminOrStudent], async (req, res) => {
   } else {
     if (courseEnroll.length > 0 && courseDisEnroll.length === 0) {
       try {
-        for (const courseCode of courseEnroll) {
+        for (const code of courseEnroll) {
           const studentEnrolled = await prisma.course.update({
             where: { courseCode },
             data: {
@@ -258,7 +253,7 @@ app.post("/student/courses", [middleware, adminOrStudent], async (req, res) => {
             },
           });
         }
-        res.status(201).json({
+        return res.status(201).json({
           message: "Students successfully enrolled in the course",
         });
       } catch (error) {
@@ -270,8 +265,8 @@ app.post("/student/courses", [middleware, adminOrStudent], async (req, res) => {
 
   if (courseDisEnroll.length > 0 && courseEnroll.length === 0) {
     try {
-      for (const courseCode of courseDisEnroll) {
-        const studentEnrolled = await prisma.course.update({
+      for (const code of courseDisEnroll) {
+        const studentDisEnrolled = await prisma.course.update({
           where: { courseCode },
           data: {
             students: {
@@ -284,9 +279,8 @@ app.post("/student/courses", [middleware, adminOrStudent], async (req, res) => {
           },
         });
       }
-      res.status(201).json({
+      return res.status(201).json({
         message: "Students successfully DisEnrolled in the course",
-        data: studentEnrolled,
       });
     } catch (error) {
       console.error(error);

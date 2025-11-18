@@ -17,7 +17,7 @@ const adminOrStudent = (req, res, next) => {
     } else {
       return res.status(403).json({ message: "Access Forbidden" });
     }
-  } catch {
+  } catch (e) {
     res.status(500).json({ message: "Something went wrong", error: e.message });
   }
 };
