@@ -231,7 +231,7 @@ app.post("/course/create", [middleware, adminMiddleWare], async (req, res) => {
 
 app.post("/student/courses", [middleware, adminOrStudent], async (req, res) => {
   const { studentIds, courseEnroll = [], courseDisEnroll = [] } = req.body;
-  const students = await prisma.user.findMany({
+  const students = await prisma.user.findUnique({
     where: { id: { in: studentIds } },
   });
   if (students.length === 0) {
